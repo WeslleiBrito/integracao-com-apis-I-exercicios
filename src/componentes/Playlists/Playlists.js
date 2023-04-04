@@ -1,31 +1,32 @@
-import React, {  useState } from "react";
+import React, { useEffect, useState } from "react";
 import Musicas from "../Musicas/Musicas";
+import axios from "axios";
+import { AUTH_TOKEN } from "../../constants/AUTH_TOKEN";
+import { BASE_URL } from "../../constants/BASE_URL";
 
-const playlistsLocal = [
-    {
-        id: 1,
-        name: "Playlist 1"
-    },
-    {
-        id: 2,
-        name: "Playlist 2"
-    },
-    {
-        id: 3,
-        name: "Playlist 3"
-    },
-    {
-        id: 4,
-        name: "Playlist 4"
-    },
-]
+
 function Playlists() {
-    const [playlists, setPlaylists] = useState(playlistsLocal)
-  
+    const [playlists, setPlaylists] = useState([])
+
+    const getAllPlaylist = async (pesquisa) => {
+
+        try {
+            const response = await axios.get(
+                !pesquisa ? BASE_URL : `${BASE_URL}search?name=${pesquisa}`,
+                { headers: { Authorization: AUTH_TOKEN } }
+            )
+            setPlaylists(response.data.result.list)
+        } catch (error) {
+            console.log(error.response)
+        }
+    }
+
+    useEffect(() => { getAllPlaylist() }, [])
+
     return (
         <div>
             {playlists.map((playlist) => {
-                return <Musicas key={playlist.id} playlist={playlist}/>
+                return <Musicas key={playlist.id} playlist={playlist} />
             })}
 
         </div>

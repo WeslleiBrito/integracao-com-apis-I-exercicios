@@ -1,27 +1,56 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Botao, ContainerInputs, ContainerMusicas, InputMusica, Musica } from './styled'
+import axios from 'axios'
+import { BASE_URL } from '../../constants/BASE_URL'
+import { AUTH_TOKEN } from '../../constants/AUTH_TOKEN'
 
-const musicasLocal = [{
-    artist: "Artista 1",
-    id: "1",
-    name: "Musica1",
-    url: "http://spoti4.future4.com.br/1.mp3"
-},
-{
-    artist: "Artista 2",
-    id: "2",
-    name: "Musica2",
-    url: "http://spoti4.future4.com.br/2.mp3"
-},
-{
-    artist: "Artista 3",
-    id: "3",
-    name: "Musica3",
-    url: "http://spoti4.future4.com.br/3.mp3"
-}]
 
 export default function Musicas(props) {
-    const [musicas, setMusicas] = useState(musicasLocal)
+    const [musicas, setMusicas] = useState([])
+
+    const [nomeMusica, setNomeMusica] = useState("")
+    const [artista, setArtista] = useState("")
+    const [url, setUrl] = useState("")
+
+    const getAllMusicas = async () => {
+
+        try {
+            const response = await axios.get(`${BASE_URL}${props.playlist.id}/tracks`, { headers: { Authorization: AUTH_TOKEN } })
+            setMusicas(response.data.result.tracks)
+        } catch (error) {
+            console.log(error.response)
+        }
+
+    }
+
+    const addMusica = async () => {
+
+        const body = {
+            name: nomeMusica,
+            artist: artista,
+            url: url
+        }
+
+        try {
+
+            await axios.post(`${BASE_URL}${props.playlist.id}/tracks`, body, { headers: { Authorization: AUTH_TOKEN } })
+            getAllMusicas()
+
+        } catch (error) {
+            console.log(error.response)
+        }
+    }
+
+    const deleteMusica = async (idPlaylist, idMusica) => {
+
+        try {
+            await axios.delete(`${BASE_URL}${idPlaylist}/tracks/${idMusica}`, { headers: { Authorization: "wesllei-brito-ozemela" } })
+            getAllMusicas()
+        } catch (error) {
+            console.log(error.response)
+        }
+    }
+    useEffect(() => { getAllMusicas() }, [])
 
     return (
         <ContainerMusicas>
@@ -31,14 +60,14 @@ export default function Musicas(props) {
                     <Musica key={musica.id}>
                         <h3>{musica.name} - {musica.artist}</h3>
                         <audio src={musica.url} controls />
-                        <button>X</button>
+                        <button onClick={() => { deleteMusica(props.playlist.id, musica.id) }}>X</button>
                     </Musica>)
             })}
             <ContainerInputs>
-                <InputMusica placeholder="artista" />
-                <InputMusica placeholder="musica" />
-                <InputMusica placeholder="url" />
-                <Botao>Adicionar musica</Botao>
+                <InputMusica placeholder="artista" value={artista} onChange={(e) => { setArtista(e.target.value) }} />
+                <InputMusica placeholder="musica" value={nomeMusica} onChange={(e) => { setNomeMusica(e.target.value) }} />
+                <InputMusica placeholder="url" value={url} onChange={(e) => { setUrl(e.target.value) }} />
+                <Botao onClick={() => addMusica()}>Adicionar musica</Botao>
             </ContainerInputs>
         </ContainerMusicas>
     )
