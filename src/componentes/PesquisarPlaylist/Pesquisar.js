@@ -8,7 +8,7 @@ export const Pesquisar = (props) => {
     return (
         <ContainerPesquisa>
             <input type="text" placeholder="Buscar playlist" value={nomePlaylist} onChange={(e) => { setNomePlaylist(e.target.value) }} />
-            <button onClick={() => { props.getAllPlaylis(nomePlaylist) }}>Buscar</button>
+            <button onClick={() => { props.getAllPlaylist(nomePlaylist) }}>Buscar</button>
         </ContainerPesquisa>
     )
 }
